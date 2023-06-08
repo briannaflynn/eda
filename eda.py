@@ -84,28 +84,28 @@ class EDA:
     def eda_categorical(self, var, copy=False):
    
         # frequency analysis
-        value_counts = df[var].value_counts()
+        value_counts = self.df[var].value_counts()
         print(f"Frequency counts for {var}:\n{value_counts}\n")
 
         # calculate the outlier count threshold based on the percentage (if 100 samples total, as default remove categories with less than 5 entries)
-        outlier_count = int(outlier_threshold * df.shape[0])
+        outlier_count = int(self.outlier_threshold * self.df.shape[0])
 
         # outlier detection, return list of categories under the threshold
         rare_values = value_counts[value_counts <= outlier_count].index.tolist()
         print(f"Outliers detected in {var}: {rare_values}\n")
 
         # copy the dataframe
-        df_copy = df.copy()
+        df_copy = self.df.copy()
 
         # if True, merge the outliers into 'Other' category, else just remove them
-        if merge_outliers:
+        if self.merge_outliers:
             df_copy[var] = df_copy[var].apply(lambda x: 'Other' if x in rare_values else x)
             print(f"After merging outliers into 'Other', frequency counts for {var}:\n{df_copy[var].value_counts()}\n")
         else:
             df_copy = df_copy[~df_copy[var].isin(rare_values)]
             print(f"After removing outliers, frequency counts for {var}:\n{df_copy[var].value_counts()}\n")
             
-        self.outliers[column] = {'variable_type': 'categorical', 
+        self.outliers[var] = {'variable_type': 'categorical', 
                                        'value_counts':value_counts,
                                        'num_outliers': outlier_count, 
                                        'rare_values': rare_values}
@@ -113,12 +113,12 @@ class EDA:
         # plot the data with seaborn
         fig, ax = plt.subplots(1, 2, figsize=(14, 7))
 
-        sns.countplot(x=var, data=df, ax=ax[0])
+        sns.countplot(x=var, data=df_copy, ax=ax[0])
         ax[0].set_title(f'Distribution of {var}')
         ax[0].tick_params(axis='x', rotation=90)
 
-        sns.countplot(x=target, hue=var, data=df, ax=ax[1])
-        ax[1].set_title(f'{var} vs {target}')
+        sns.countplot(x=self.target, hue=var, data=df_copy, ax=ax[1])
+        ax[1].set_title(f'{var} vs {self.target}')
         ax[1].tick_params(axis='x', rotation=90)
 
         plt.tight_layout()
@@ -129,7 +129,7 @@ class EDA:
         else:
             self.df = df_copy
         
-        return self.outliers[column]
+        return self.outliers[var]
 
     def apply_eda(self):
         # Iterate over the columns in the dataframe
