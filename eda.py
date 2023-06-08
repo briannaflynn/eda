@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
+#import plotly.express as px
 from scipy import stats
 from scipy.stats import zscore
 
@@ -11,7 +11,7 @@ class EDA:
         self.df = df
         self.target = target
         self.outlier_threshold = outlier_threshold
-        self.merge_or_remove = merge_or_remove
+        self.merge_outliers = merge_outliers
         self.use_plotly = use_plotly
         self.outliers = {}
 
