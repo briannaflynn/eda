@@ -131,15 +131,39 @@ class EDA:
         
         return self.outliers[var]
 
+    def gen_run_label(self,cat=True):
+        if cat:
+            print('#' * 20)
+            print('CATEGORICAL VARIABLE ANALYSIS')
+            print('#'* 20, '\n')
+        else:
+            print('#' * 20)
+            print('NUMERICAL VARIABLE ANALYSIS')
+            print('#'* 20, '\n')
+
     def apply_eda(self):
-        # Iterate over the columns in the dataframe
-        for var in self.df.columns:
-            # Skip the target variable
-            if var == self.target:
-                continue
+        
+        categorical_vars = self.df.select_dtypes(include=['category','int','object']).columns.tolist()
+        numerical_vars = self.df.select_dtypes(include=np.number).columns.tolist()
+        
+        if len(categorical_vars) > 1:
+            self.gen_run_label()
+            for var in categorical_vars:
+                if var == self.target:
+                    continue
+                else:
+                    self.eda_categorical(var)
+        else:
+            print('No categorical data available\n')
+
+        if len(numerical_vars) > 0:
+            self.gen_run_label(False)
+            for var in numerical_vars:
+                if var == self.target:
+                    continue
+                else:
+                    self.eda_numerical(var)
             
-            # Apply the appropriate EDA method
-            if np.issubdtype(self.df[var].dtype, np.number):
-                self.eda_numerical(var)
-            else:
-                self.eda_categorical(var)
+            self.pair_plot()
+        else:
+            print('\nNo numerical data available')
